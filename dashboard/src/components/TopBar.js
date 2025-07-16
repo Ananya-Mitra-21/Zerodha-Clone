@@ -3,21 +3,21 @@ import Menu from "./Menu";
 
 const TopBar = ({ onLogout }) => {
   return (
-    <div className="topbar-container" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px" }}>
-      
-      {/* Indices */}
+    <div
+      className="topbar-container"
+      style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px" }}
+    >
       <div className="indices-container" style={{ display: "flex", gap: "20px" }}>
-        <div className="nifty">
+        <div>
           <p className="index">NIFTY 50</p>
           <p className="index-points">{100.2}</p>
         </div>
-        <div className="sensex">
+        <div>
           <p className="index">SENSEX</p>
           <p className="index-points">{100.2}</p>
         </div>
       </div>
 
-      {/* Menu + Logout */}
       <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
         <Menu />
         <button
@@ -39,3 +39,4 @@ const TopBar = ({ onLogout }) => {
 };
 
 export default TopBar;
+

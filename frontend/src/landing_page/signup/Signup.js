@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import "./Signup.css";
+import { API_BASE_URL, DASHBOARD_URL } from "../../config"; // ✅ Adjust path correctly
 
 export default function Signup() {
   const [username, setUsername] = useState("");
@@ -11,12 +12,13 @@ export default function Signup() {
     e.preventDefault();
     try {
       await axios.post(
-        "http://localhost:3002/auth/signup",
+        `${API_BASE_URL}/auth/signup`, // ✅ Backend URL dynamic
         { username, email, password },
         { withCredentials: true }
       );
-      // ✅ Redirect to Dashboard React App
-      window.location.href = "http://localhost:3001";
+
+      // ✅ Redirect dynamically
+      window.location.href = DASHBOARD_URL;
     } catch (err) {
       alert(err.response?.data?.error || "Signup failed");
     }
@@ -26,13 +28,34 @@ export default function Signup() {
     <div className="auth-container">
       <h2>Create Your Zerodha Account</h2>
       <form onSubmit={handleSignup}>
-        <input type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} required />
-        <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+        <input
+          type="text"
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          required
+        />
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
         <button type="submit">Sign Up</button>
         <p>
           Already have an account?{" "}
-          <span style={{ color: "#387ed1", cursor: "pointer" }} onClick={() => (window.location.href = "/login")}>
+          <span
+            style={{ color: "#387ed1", cursor: "pointer" }}
+            onClick={() => (window.location.href = "/login")}
+          >
             Login
           </span>
         </p>
@@ -40,4 +63,6 @@ export default function Signup() {
     </div>
   );
 }
+
+
 

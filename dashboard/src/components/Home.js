@@ -1,34 +1,43 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import Dashboard from "./Dashboard";
+import { API_BASE_URL } from "../config";
+
 import TopBar from "./TopBar";
+import Dashboard from "./Dashboard";
 
 const Home = () => {
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+  // ✅ Check user session
   useEffect(() => {
     axios
-      .get("http://localhost:3002/auth/check", { withCredentials: true })
-      .then((res) => {
-        if (!res.data.loggedIn) {
-          window.location.href = "http://localhost:3000/login";
+      .get(`${API_BASE_URL}/auth/check`, { withCredentials: true })
+      .then((response) => {
+        if (response.data.loggedIn) {
+          setIsAuthenticated(true);
         } else {
-          setUser(res.data.user);
-          setLoading(false);
+          window.location.href = "http://localhost:3000/login";
         }
       })
       .catch(() => {
         window.location.href = "http://localhost:3000/login";
-      });
+      })
+      .finally(() => setLoading(false));
   }, []);
 
+  // ✅ Logout handler
   const handleLogout = async () => {
-    await axios.get("http://localhost:3002/auth/logout", { withCredentials: true });
-    window.location.href = "http://localhost:3000/login";
+    try {
+      await axios.get(`${API_BASE_URL}/auth/logout`, { withCredentials: true });
+      window.location.href = "http://localhost:3000/login";
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
   };
 
-  if (loading) return <h2>Loading Dashboard...</h2>;
+  if (loading) return <h1>Loading dashboard...</h1>;
+  if (!isAuthenticated) return null;
 
   return (
     <>
@@ -39,4 +48,6 @@ const Home = () => {
 };
 
 export default Home;
+
+
 
