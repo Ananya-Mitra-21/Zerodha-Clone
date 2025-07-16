@@ -1,49 +1,59 @@
 const express = require("express");
-const passport = require("passport");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const User = require("../model/user");
 
 const router = express.Router();
+const JWT_SECRET = process.env.JWT_SECRET || "supersecretjwtkey";
 
 // ✅ SIGNUP
-router.post("/signup", async (req, res, next) => {
+router.post("/signup", async (req, res) => {
   const { username, email, password } = req.body;
-  try {
-    const user = new User({ username, email });
-    const registeredUser = await User.register(user, password);
 
-    req.login(registeredUser, (err) => {
-      if (err) return next(err);
-      res.status(201).json({ message: "Signup successful", user: registeredUser });
-    });
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = new User({ username, email, password: hashedPassword });
+    await newUser.save();
+
+    const token = jwt.sign({ id: newUser._id }, JWT_SECRET, { expiresIn: "7d" });
+    res.json({ token });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 });
 
 // ✅ LOGIN
-router.post("/login", passport.authenticate("local"), (req, res) => {
-  res.status(200).json({ message: "Login successful", user: req.user });
-});
+router.post("/login", async (req, res) => {
+  const { username, password } = req.body;
 
-// ✅ LOGOUT
-router.get("/logout", (req, res) => {
-  req.logout((err) => {
-    if (err) return res.status(500).json({ error: "Logout failed" });
-    res.clearCookie("connect.sid"); // ✅ Optional: Clear cookie manually
-    res.status(200).json({ message: "Logged out successfully" });
-  });
-});
+  try {
+    const user = await User.findOne({ username });
+    if (!user) return res.status(400).json({ error: "User not found" });
 
-// ✅ CHECK SESSION
-router.get("/check", (req, res) => {
-  if (req.isAuthenticated()) {
-    res.json({ loggedIn: true, user: req.user });
-  } else {
-    res.json({ loggedIn: false });
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(400).json({ error: "Invalid credentials" });
+
+    const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "7d" });
+    res.json({ token });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
   }
 });
 
+// ✅ CHECK TOKEN
+router.get("/check", (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return res.json({ loggedIn: false });
+
+  const token = authHeader.split(" ")[1];
+  jwt.verify(token, JWT_SECRET, (err, decoded) => {
+    if (err) return res.json({ loggedIn: false });
+    res.json({ loggedIn: true, userId: decoded.id });
+  });
+});
+
 module.exports = router;
+
 
 
 
