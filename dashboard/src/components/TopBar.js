@@ -1,11 +1,27 @@
 import React from "react";
 import Menu from "./Menu";
+import axios from "axios";
+import { API_BASE_URL, FRONTEND_URL } from "../config";
 
-const TopBar = ({ onLogout }) => {
+const TopBar = () => {
+  const handleLogout = async () => {
+    try {
+      await axios.get(`${API_BASE_URL}/auth/logout`, { withCredentials: true });
+      window.location.href = `${FRONTEND_URL}/login`; // ✅ Redirect to login page
+    } catch (err) {
+      alert("Logout failed");
+    }
+  };
+
   return (
     <div
       className="topbar-container"
-      style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px" }}
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        padding: "10px",
+      }}
     >
       <div className="indices-container" style={{ display: "flex", gap: "20px" }}>
         <div>
@@ -21,14 +37,14 @@ const TopBar = ({ onLogout }) => {
       <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
         <Menu />
         <button
-          onClick={onLogout}
+          onClick={handleLogout}
           style={{
             backgroundColor: "#387ed1",
             color: "#fff",
             border: "none",
             padding: "8px 16px",
             borderRadius: "4px",
-            cursor: "pointer"
+            cursor: "pointer",
           }}
         >
           Logout
@@ -39,5 +55,6 @@ const TopBar = ({ onLogout }) => {
 };
 
 export default TopBar;
+
 
 

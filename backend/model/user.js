@@ -2,20 +2,12 @@ const mongoose = require("mongoose");
 const passportLocalMongoose = require("passport-local-mongoose");
 
 const userSchema = new mongoose.Schema({
-  username: {
-    type: String,
-    required: true,
-    unique: true, // ✅ ensures no duplicate usernames
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true, // ✅ ensures no duplicate emails
-  },
+  email: { type: String, required: true },
 });
 
-userSchema.plugin(passportLocalMongoose); // ✅ Adds password hashing and auth helpers
+userSchema.plugin(passportLocalMongoose);
 
 module.exports = mongoose.model("User", userSchema);
+
 
 
